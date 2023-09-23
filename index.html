@@ -32,17 +32,13 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    /**
-     * @todo change randomTime to 7000, 3000
-     * @todo run 5 times
-     */
     var vReactionTimeAvg;
     var aReactionTimeAvg;
 
     $('#startBtn').on('click', function()
     {
         let currentCycle = 0;
-        let cycleCount = 3;
+        let cycleCount = 5;
         let startTime;
         let endTime;
         let reactionTimeArray = [];
@@ -53,7 +49,7 @@
 
         function startVisual()
         {
-            let randomTime = Math.random() * 1000 + 1000; // Random time between 3 and 10 seconds
+            let randomTime = Math.random() * 7000 + 3000; // Random time between 3 and 10 seconds
 
             setTimeout(function()
             {
@@ -73,7 +69,7 @@
                     let reactionTime = endTime - startTime;
                     reactionTimeArray.push(reactionTime);
 
-                    $('#timerDisplay').append('<p>Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</p>');
+                    $('#timerDisplay').append('<div class="mb-1">Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</div>');
                     $(this).removeClass('btn-danger').addClass('btn-secondary');
 
                     if(currentCycle < cycleCount)
@@ -107,7 +103,7 @@
     $(document).on('click', '#soundBtn', function()
     {
         let currentCycle = 0;
-        let cycleCount = 3;
+        let cycleCount = 5;
         let startTime;
         let endTime;
         let reactionTimeArray = [];
@@ -119,7 +115,7 @@
 
         function startAcoustic()
         {
-            let randomTime = Math.random() * 1000 + 1000; // Random time between 3 and 10 seconds
+            let randomTime = Math.random() * 7000 + 3000; // Random time between 3 and 10 seconds
 
             setTimeout(function()
             {
@@ -140,7 +136,7 @@
                     let reactionTime = endTime - startTime;
                     reactionTimeArray.push(reactionTime);
 
-                    $('#timerDisplay').append('<p>Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</p>');
+                    $('#timerDisplay').append('<div class="mb-1">Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</div>');
                     $(this).removeClass('waiting');
 
                     if(currentCycle < cycleCount)
@@ -153,8 +149,8 @@
 
                         $('#guide').html(
                             '<p>Great! Let\'s take a look at the results:</p>' +
-                            '<div class="row"><div class="col-12 col-sm-6 mb-3"><div class="mb-1">Visual reaction time</div><div class="font-weight-bold">' + vReactionTimeAvg + ' ms</div></div>' +
-                            '<div class="col-12 col-sm-6 mb-4"><div class="mb-1">Acoustic reaction time</div><div class="font-weight-bold">' + aReactionTimeAvg + ' ms</div></div></div>'
+                            '<div class="row"><div class="col-12 col-sm-6 mb-3"><div>Visual reaction time</div><div class="font-weight-bold">' + vReactionTimeAvg + ' ms</div></div>' +
+                            '<div class="col-12 col-sm-6 mb-4"><div>Acoustic reaction time</div><div class="font-weight-bold">' + aReactionTimeAvg + ' ms</div></div></div>'
                         );
 
                         if(Math.abs(vReactionTimeAvg - aReactionTimeAvg) < 10)
@@ -179,7 +175,7 @@
                             );
                         }
 
-                        $('#guide').append('<button id="resetBtn" class="btn btn-primary mr-2">Play again</button>');
+                        $('#guide').append('<button id="resetBtn" class="btn btn-primary mr-2">Try again</button>');
                         $('#guide').show();
                     }
                 }

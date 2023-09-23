@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="src/style.css">
+
+    <title>Reaction Benchmark</title>
+</head>
+<body>
+<div class="container text-center mt-4">
+    <h1>Reaction Benchmark</h1>
+
+    <div class="mt-5">
+        <button id="timingBtn" class="btn btn-secondary rounded-circle font-weight-bold">Click me!</button>
+        <div id="timerDisplay" class="mt-4"></div>
+        <audio id="sound" src="src/sound.mp3" autoplay></audio>
+    </div>
+
+    <div id="guide" class="mt-5">
+        <p>This series of tests was made to measure your reaction time in various situations.</p>
+        <p>First, let's take a look at your visual reaction time. Above this text you can see a big button that's saying "Click me!".</p>
+        <p>After a brief period the button will change color. When it does, try to click it as fast as you can. This test will be run five times to improve accuracy.</p>
+        <p>Once you're ready, click the button below.</p>
+        <button id="startBtn" class="btn btn-primary">I'm ready!</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    var vReactionTimeAvg;
+    var aReactionTimeAvg;
+
+    $('#startBtn').on('click', function()
+    {
+        let currentCycle = 0;
+        let cycleCount = 5;
+        let startTime;
+        let endTime;
+        let reactionTimeArray = [];
+
+        $('#guide').hide();
+
+        startVisual();
+
+        function startVisual()
+        {
+            let randomTime = Math.random() * 7000 + 3000; // Random time between 3 and 10 seconds
+
+            setTimeout(function()
+            {
+                currentCycle++;
+
+                startTime = new Date().getTime();
+
+                $('#timingBtn').removeClass('btn-secondary').addClass('btn-danger');
+            }, randomTime);
+
+            $('#timingBtn').on('click', function()
+            {
+                if($(this).hasClass('btn-danger'))
+                {
+                    endTime = new Date().getTime();
+
+                    let reactionTime = endTime - startTime;
+                    reactionTimeArray.push(reactionTime);
+
+                    $('#timerDisplay').append('<div class="mb-1">Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</div>');
+                    $(this).removeClass('btn-danger').addClass('btn-secondary');
+
+                    if(currentCycle < cycleCount)
+                    {
+                        startVisual();
+                    }
+                    else
+                    {
+                        vReactionTimeAvg = Math.round(reactionTimeArray.reduce((a, b) => (a + b)) / reactionTimeArray.length); // Sum divided by count
+
+                        $('#guide').html(
+                            '<p>Good job! Your average visual reaction time is ' + vReactionTimeAvg + ' ms. Now let\'s see about your acoustic reaction time.</p>' +
+                            '<p>After a brief period a sound will be played, but the button WILL NOT change color. Once you hear the sound, click the button.</p>' +
+                            '<p>You can test the sound to make sure you can hear it properly. The test will be run five times again.</p>' +
+                            '<p>Once you\'re ready, click the button below.</p>' +
+                            '<button id="soundBtn" class="btn btn-primary mr-2">I\'m ready!</button>' +
+                            '<button id="testBtn" class="btn btn-info ml-2">Test sound</button>'
+                        );
+                        $('#guide').show();
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#testBtn', function()
+    {
+        $('#sound')[0].play();
+    });
+
+    $(document).on('click', '#soundBtn', function()
+    {
+        let currentCycle = 0;
+        let cycleCount = 5;
+        let startTime;
+        let endTime;
+        let reactionTimeArray = [];
+
+        $('#guide').hide();
+        $('#timerDisplay').html('');
+
+        startAcoustic();
+
+        function startAcoustic()
+        {
+            let randomTime = Math.random() * 7000 + 3000; // Random time between 3 and 10 seconds
+
+            setTimeout(function()
+            {
+                currentCycle++;
+
+                startTime = new Date().getTime();
+
+                $('#timingBtn').addClass('waiting');
+                $('#sound')[0].play();
+            }, randomTime);
+
+            $('#timingBtn').on('click', function()
+            {
+                if($(this).hasClass('waiting'))
+                {
+                    endTime = new Date().getTime();
+
+                    let reactionTime = endTime - startTime;
+                    reactionTimeArray.push(reactionTime);
+
+                    $('#timerDisplay').append('<div class="mb-1">Reaction time ' + currentCycle + ': ' + reactionTime + ' ms</div>');
+                    $(this).removeClass('waiting');
+
+                    if(currentCycle < cycleCount)
+                    {
+                        startAcoustic();
+                    }
+                    else
+                    {
+                        aReactionTimeAvg = Math.round(reactionTimeArray.reduce((a, b) => (a + b)) / reactionTimeArray.length); // Sum divided by count
+
+                        $('#guide').html(
+                            '<p>Great! Let\'s take a look at the results:</p>' +
+                            '<div class="row"><div class="col-12 col-sm-6 mb-3"><div>Visual reaction time</div><div class="font-weight-bold">' + vReactionTimeAvg + ' ms</div></div>' +
+                            '<div class="col-12 col-sm-6 mb-4"><div>Acoustic reaction time</div><div class="font-weight-bold">' + aReactionTimeAvg + ' ms</div></div></div>'
+                        );
+
+                        if(Math.abs(vReactionTimeAvg - aReactionTimeAvg) < 10)
+                        {
+                            $('#guide').append(
+                                '<p>Your visual and acoustic reaction times are about the same.</p>' +
+                                '<p>This is good, as it doesn\'t matter what you\'re reacting to.</p>'
+                            );
+                        }
+                        else if(vReactionTimeAvg < aReactionTimeAvg)
+                        {
+                            $('#guide').append(
+                                '<p>Your visual reaction time is significantly faster.</p>' +
+                                '<p>In games, you should mostly rely on your sight. I would also recommend turning on sound visualization if possible.</p>'
+                            );
+                        }
+                        else
+                        {
+                            $('#guide').append(
+                                '<p>Your acoustic reaction time is significantly faster.</p>' +
+                                '<p>In games, you should mostly rely on your hearing. I would also recommend playing without music, which should help you focus better.</p>'
+                            );
+                        }
+
+                        $('#guide').append('<button id="resetBtn" class="btn btn-primary mr-2">Try again</button>');
+                        $('#guide').show();
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#resetBtn', function()
+    {
+        location.reload();
+    });
+</script>
+</body>
+</html>
